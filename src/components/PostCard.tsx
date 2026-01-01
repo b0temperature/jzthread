@@ -74,8 +74,9 @@ export default function PostCard({ post, onComment, onAuthorClick }: PostCardPro
         setLocalComments(prev => [...prev, {
           id: data.comment.id,
           content: commentText.trim(),
+          authorId: user.credential,
           authorName: user.username,
-          createdAt: new Date()
+          createdAt: Date.now()
         }])
         setCommentText('')
       }
