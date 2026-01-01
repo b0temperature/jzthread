@@ -30,12 +30,6 @@ export default function PostCard({ post, onComment, onAuthorClick }: PostCardPro
   })
 
   // 加载评论
-  useEffect(() => {
-    if (showComments && !commentsLoaded) {
-      fetchComments()
-    }
-  }, [showComments])
-
   const fetchComments = async () => {
     try {
       const response = await fetch(`/api/posts/${post.id}/comments`)
@@ -55,6 +49,12 @@ export default function PostCard({ post, onComment, onAuthorClick }: PostCardPro
       console.error('Failed to fetch comments:', error)
     }
   }
+
+  useEffect(() => {
+    if (showComments && !commentsLoaded) {
+      fetchComments()
+    }
+  }, [showComments, commentsLoaded])
 
   const handleLike = async () => {
     if (!user || isLiking) return
