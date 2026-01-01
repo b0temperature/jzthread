@@ -40,14 +40,15 @@ export async function POST(
         .eq('id', params.id)
         .single()
 
+      const newLikes = Math.max((post?.likes || 0) - 1, 0)
       if (post) {
         await supabase
           .from('posts')
-          .update({ likes: Math.max((post.likes || 0) - 1, 0) })
+          .update({ likes: newLikes })
           .eq('id', params.id)
       }
 
-      return NextResponse.json({ liked: false })
+      return NextResponse.json({ liked: false, likes: newLikes })
     } else {
       // 添加点赞
       await supabase
@@ -61,14 +62,15 @@ export async function POST(
         .eq('id', params.id)
         .single()
 
+      const newLikes = (post?.likes || 0) + 1
       if (post) {
         await supabase
           .from('posts')
-          .update({ likes: (post.likes || 0) + 1 })
+          .update({ likes: newLikes })
           .eq('id', params.id)
       }
 
-      return NextResponse.json({ liked: true })
+      return NextResponse.json({ liked: true, likes: newLikes })
     }
   } catch (error: any) {
     return NextResponse.json(

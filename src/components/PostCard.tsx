@@ -22,8 +22,7 @@ export default function PostCard({ post, onComment, onAuthorClick }: PostCardPro
   const [commentText, setCommentText] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [localComments, setLocalComments] = useState(post.comments)
-  
-  const hasLiked = user ? post.likedBy.includes(user.credential) : false
+  const [hasLiked, setHasLiked] = useState(user ? post.likedBy.includes(user.credential) : false)
   const timeAgo = formatDistanceToNow(post.createdAt, { 
     addSuffix: true, 
     locale: language === 'zh' ? zhCN : enUS
@@ -42,9 +41,10 @@ export default function PostCard({ post, onComment, onAuthorClick }: PostCardPro
       
       if (response.ok) {
         const data = await response.json()
-        // 更新本地点赞数
-        setLocalLikes(prev => data.liked ? prev + 1 : Math.max(prev - 1, 0))
-        // 同时更新 store (用于 hasLiked 状态)
+        // 更新本地状态
+        setHasLiked(data.liked)
+        setLocalLikes(data.likes)
+        // 同时更新 store 中的 likedBy 数组
         likePost(post.id, user.credential)
       }
     } catch (error) {
