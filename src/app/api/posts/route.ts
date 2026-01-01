@@ -12,13 +12,22 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from('posts')
       .select(`
-        *,
+        id,
+        user_id,
+        title,
+        content,
+        tag,
+        views,
+        likes,
+        comments_count,
+        created_at,
+        updated_at,
         users (
           id,
           username,
           avatar
         ),
-        likes (
+        post_likes:likes (
           user_id
         )
       `)
@@ -34,11 +43,15 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error
 
-    // 处理返回数据，添加 likedBy 数组
-    const postsWithLikes = data?.map(post => ({
-      ...post,
-      likedBy: post.likes?.map((like: any) => like.user_id) || []
-    })) || []
+    // 处理返回数据，从 post_likes 提取 likedBy 数组
+    const postsWithLikes = data?.map(post => {
+      const likedBy = post.post_likes?.map((like: any) => like.user_id) || []
+      const { post_likes, ...postData } = post
+      return {
+        ...postData,
+        likedBy
+      }
+    }) || []
 
     return NextResponse.json({ posts: postsWithLikes })
   } catch (error: any) {
