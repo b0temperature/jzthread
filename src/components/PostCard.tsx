@@ -4,7 +4,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { zhCN, enUS } from 'date-fns/locale'
 import { Post, useStore } from '@/store'
 import { translations } from '@/i18n'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 interface PostCardProps {
   post: Post
@@ -30,7 +30,7 @@ export default function PostCard({ post, onComment, onAuthorClick }: PostCardPro
   })
 
   // 加载评论
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     try {
       const response = await fetch(`/api/posts/${post.id}/comments`)
       const data = await response.json()
@@ -48,13 +48,13 @@ export default function PostCard({ post, onComment, onAuthorClick }: PostCardPro
     } catch (error) {
       console.error('Failed to fetch comments:', error)
     }
-  }
+  }, [post.id])
 
   useEffect(() => {
     if (showComments && !commentsLoaded) {
       fetchComments()
     }
-  }, [showComments, commentsLoaded])
+  }, [showComments, commentsLoaded, fetchComments])
 
   const handleLike = async () => {
     if (!user || isLiking) return
