@@ -75,7 +75,7 @@ export default function PostCard({ post, onComment, onAuthorClick }: PostCardPro
           id: data.comment.id,
           content: commentText.trim(),
           authorId: user.credential,
-          authorName: user.username,
+          authorName: user.nickname,
           createdAt: Date.now()
         }])
         setCommentText('')
@@ -239,9 +239,9 @@ export default function PostCard({ post, onComment, onAuthorClick }: PostCardPro
             <div className="mb-4 flex items-start space-x-2">
               <div 
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0"
-                style={{ background: getGradient(user.username) }}
+                style={{ background: getGradient(user.nickname) }}
               >
-                {getInitial(user.username)}
+                {getInitial(user.nickname)}
               </div>
               <div className="flex-1">
                 <textarea
