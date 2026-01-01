@@ -68,7 +68,7 @@ export default function ThreadView({ authUser }: ThreadViewProps) {
   const convertedPosts = useMemo(() => {
     return dbPosts.map(post => ({
       id: post.id,
-      content: `${post.title}\n\n${post.content}`,
+      content: post.content,
       authorId: post.user_id,
       authorName: post.users?.username || 'Unknown',
       authorRole: 'student' as const,

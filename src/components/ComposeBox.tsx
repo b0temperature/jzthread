@@ -34,7 +34,7 @@ export default function ComposeBox({ authUser }: ComposeBoxProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: authUser.id,
-          title: content.trim().split('\n')[0].slice(0, 50),
+          title: content.trim(),
           content: content.trim(),
           tag: selectedTags[0] || null,
         }),
