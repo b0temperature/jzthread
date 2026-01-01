@@ -4,12 +4,23 @@ export interface AuthUser {
   id: string
   email: string
   username: string
+  phone?: string
+  student_id?: string
+  student_card_image?: string
+  verify_status?: string
   avatar?: string
   bio?: string
 }
 
 // 注册新用户
-export async function signUp(email: string, password: string, username: string) {
+export async function signUp(
+  email: string, 
+  password: string, 
+  username: string,
+  phone: string,
+  studentId: string,
+  studentCardImage?: string
+) {
   // 1. 在 Supabase Auth 创建账号
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
@@ -26,6 +37,10 @@ export async function signUp(email: string, password: string, username: string) 
       id: authData.user.id,
       username,
       email,
+      phone,
+      student_id: studentId,
+      student_card_image: studentCardImage,
+      verify_status: 'pending',
       avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
     }])
 
@@ -70,6 +85,10 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     id: profile.id,
     email: profile.email,
     username: profile.username,
+    phone: profile.phone,
+    student_id: profile.student_id,
+    student_card_image: profile.student_card_image,
+    verify_status: profile.verify_status,
     avatar: profile.avatar,
     bio: profile.bio,
   }
