@@ -32,7 +32,9 @@ export default function Home() {
             email: user.email,
             studentId: user.student_id,
             role: 'student',
-            enrollYear: undefined
+            enrollYear: undefined,
+            verifyStatus: 'pending',
+            createdAt: Date.now()
           })
         } else {
           setShowAuthModal(true)
