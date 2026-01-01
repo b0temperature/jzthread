@@ -20,26 +20,35 @@ export default function ComposeBox() {
   // 使用翻译的标签
   const popularTags = Object.keys(t.tags)
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!content.trim() || !user) return
 
-    const newPost = {
-      id: nanoid(),
-      content: content.trim(),
-      authorId: user.credential,
-      authorName: user.nickname,
-      authorRole: user.role,
-      tags: selectedTags,
-      likes: 0,
-      likedBy: [],
-      comments: [],
-      createdAt: Date.now(),
-    }
+    try {
+      // 调用 API 创建帖子
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: '71475011-7e63-4305-b357-005a093ad133', // 张三的 ID (临时写死,后续需要用户认证)
+          title: content.trim().split('\n')[0].slice(0, 50), // 使用第一行作为标题
+          content: content.trim(),
+          tag: selectedTags[0] || null, // 使用第一个标签
+        }),
+      })
 
-    addPost(newPost)
-    setContent('')
-    setSelectedTags([])
-    setIsExpanded(false)
+      if (response.ok) {
+        // 成功后清空表单并刷新页面
+        setContent('')
+        setSelectedTags([])
+        setIsExpanded(false)
+        window.location.reload() // 简单刷新页面重新获取数据
+      } else {
+        alert('发布失败,请重试')
+      }
+    } catch (error) {
+      console.error('Failed to create post:', error)
+      alert('发布失败,请重试')
+    }
   }
 
   const toggleTag = (tag: string) => {
