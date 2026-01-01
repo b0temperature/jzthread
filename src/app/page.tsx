@@ -11,7 +11,7 @@ import ProfileView from '@/components/ProfileView'
 import AuthModal from '@/components/AuthModal'
 
 export default function Home() {
-  const { activeTab, backgroundTheme, setBackgroundTheme } = useStore()
+  const { activeTab, backgroundTheme, setBackgroundTheme, setUser } = useStore()
   const [authUser, setAuthUser] = useState<AuthUser | null>(null)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [showThemeSelector, setShowThemeSelector] = useState(false)
@@ -23,7 +23,18 @@ export default function Home() {
       try {
         const user = await getCurrentUser()
         setAuthUser(user)
-        if (!user) {
+        if (user) {
+          // 同步设置 store 的 user，供 PostCard 等组件使用
+          setUser({
+            credential: user.id,
+            nickname: user.username,
+            phone: user.phone || '',
+            email: user.email,
+            studentId: user.student_id,
+            role: 'student',
+            enrollYear: undefined
+          })
+        } else {
           setShowAuthModal(true)
         }
       } catch (error) {
