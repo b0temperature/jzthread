@@ -85,8 +85,6 @@ export default function PostCard({ post, onComment, onAuthorClick }: PostCardPro
       setIsSubmitting(false)
     }
   }
-    }
-  }
 
   // 获取头像字母
   const getInitial = (name: string) => {
