@@ -3,13 +3,17 @@
 import { useState, useRef } from 'react'
 import { useStore } from '@/store'
 import { translations } from '@/i18n'
-import { nanoid } from 'nanoid'
+import { AuthUser } from '@/lib/auth'
 
 // 常用表情列表
 const EMOJI_LIST = ['😀', '😂', '🥲', '😊', '😍', '🤔', '😭', '😱', '🥺', '👍', '👎', '❤️', '🔥', '💯', '🎉', '✨', '😴', '🤡', '💀', '🙏']
 
-export default function ComposeBox() {
-  const { user, addPost, language } = useStore()
+interface ComposeBoxProps {
+  authUser: AuthUser | null
+}
+
+export default function ComposeBox({ authUser }: ComposeBoxProps) {
+  const { language } = useStore()
   const t = translations[language]
   const [content, setContent] = useState('')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
@@ -21,7 +25,7 @@ export default function ComposeBox() {
   const popularTags = Object.keys(t.tags)
 
   const handleSubmit = async () => {
-    if (!content.trim() || !user) return
+    if (!content.trim() || !authUser) return
 
     try {
       // 调用 API 创建帖子
@@ -29,19 +33,18 @@ export default function ComposeBox() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_id: '71475011-7e63-4305-b357-005a093ad133', // 张三的 ID (临时写死,后续需要用户认证)
-          title: content.trim().split('\n')[0].slice(0, 50), // 使用第一行作为标题
+          user_id: authUser.id,
+          title: content.trim().split('\n')[0].slice(0, 50),
           content: content.trim(),
-          tag: selectedTags[0] || null, // 使用第一个标签
+          tag: selectedTags[0] || null,
         }),
       })
 
       if (response.ok) {
-        // 成功后清空表单并刷新页面
         setContent('')
         setSelectedTags([])
         setIsExpanded(false)
-        window.location.reload() // 简单刷新页面重新获取数据
+        window.location.reload()
       } else {
         alert('发布失败,请重试')
       }
@@ -77,19 +80,16 @@ export default function ComposeBox() {
     setShowEmojiPicker(false)
   }
 
-  if (!user) return null
+  if (!authUser) return null
 
   return (
     <div className="glass rounded-2xl p-4 mb-6 transition-all duration-300">
       <div className="flex items-start">
-        <div 
-          className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0"
-          style={{ 
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
-          }}
-        >
-          {user.nickname.charAt(0)}
-        </div>
+        <img
+          src={authUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${authUser.username}`}
+          alt={authUser.username}
+          className="w-10 h-10 rounded-full flex-shrink-0"
+        />
         <div className="ml-3 flex-1">
           <textarea
             ref={textareaRef}

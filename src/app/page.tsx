@@ -1,16 +1,40 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useStore, BACKGROUND_THEMES } from '@/store'
+import { getCurrentUser, AuthUser } from '@/lib/auth'
 import Header from '@/components/Header'
 import BottomNav from '@/components/BottomNav'
 import ThreadView from '@/components/ThreadView'
 import ResourcesView from '@/components/ResourcesView'
 import ProfileView from '@/components/ProfileView'
-import LoginModal from '@/components/LoginModal'
+import AuthModal from '@/components/AuthModal'
 
 export default function Home() {
-  const { user, activeTab, backgroundTheme } = useStore()
+  const { activeTab, backgroundTheme } = useStore()
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  // 检查用户登录状态
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const user = await getCurrentUser()
+        setAuthUser(user)
+        if (!user) {
+          setShowAuthModal(true)
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error)
+        setShowAuthModal(true)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    checkAuth()
+  }, [])
 
   // 处理背景主题切换 + 自动设置深浅色模式
   useEffect(() => {
@@ -37,23 +61,39 @@ export default function Home() {
   const renderView = () => {
     switch (activeTab) {
       case 'thread':
-        return <ThreadView />
+        return <ThreadView authUser={authUser} />
       case 'resources':
         return <ResourcesView />
       case 'profile':
-        return <ProfileView />
+        return <ProfileView authUser={authUser} />
       default:
-        return <ThreadView />
+        return <ThreadView authUser={authUser} />
     }
+  }
+
+  if (loading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="text-secondary">加载中...</div>
+      </main>
+    )
   }
 
   return (
     <main className="min-h-screen pb-20">
       {/* 未登录显示登录模态框 */}
-      {!user && <LoginModal />}
+      {showAuthModal && (
+        <AuthModal
+          onClose={() => {}}
+          onSuccess={() => {
+            setShowAuthModal(false)
+            window.location.reload()
+          }}
+        />
+      )}
 
       {/* 已登录显示内容 */}
-      {user && (
+      {authUser && (
         <>
           <Header />
           

@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useStore } from '@/store'
 import { translations } from '@/i18n'
+import { AuthUser } from '@/lib/auth'
 import PostCard from './PostCard'
 import ComposeBox from './ComposeBox'
 import UserProfileModal from './UserProfileModal'
@@ -26,7 +27,11 @@ interface DbPost {
   }
 }
 
-export default function ThreadView() {
+interface ThreadViewProps {
+  authUser: AuthUser | null
+}
+
+export default function ThreadView({ authUser }: ThreadViewProps) {
   const { posts, language } = useStore()
   const t = translations[language]
   const [activeTab, setActiveTab] = useState<ThreadTab>('all')
@@ -131,7 +136,7 @@ export default function ThreadView() {
       </div>
 
       {/* 发帖框 */}
-      <ComposeBox />
+      <ComposeBox authUser={authUser} />
       
       {/* 帖子列表 */}
       <div className="space-y-4">
