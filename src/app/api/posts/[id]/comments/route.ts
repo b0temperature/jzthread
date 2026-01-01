@@ -18,6 +18,7 @@ export async function GET(
         )
       `)
       .eq('post_id', params.id)
+      .eq('is_deleted', false)
       .order('created_at', { ascending: true })
 
     if (error) throw error

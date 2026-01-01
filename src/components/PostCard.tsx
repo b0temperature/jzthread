@@ -4,7 +4,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { zhCN, enUS } from 'date-fns/locale'
 import { Post, useStore } from '@/store'
 import { translations } from '@/i18n'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface PostCardProps {
   post: Post
@@ -23,10 +23,38 @@ export default function PostCard({ post, onComment, onAuthorClick }: PostCardPro
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [localComments, setLocalComments] = useState(post.comments)
   const [hasLiked, setHasLiked] = useState(user ? post.likedBy.includes(user.credential) : false)
+  const [commentsLoaded, setCommentsLoaded] = useState(false)
   const timeAgo = formatDistanceToNow(post.createdAt, { 
     addSuffix: true, 
     locale: language === 'zh' ? zhCN : enUS
   })
+
+  // 加载评论
+  useEffect(() => {
+    if (showComments && !commentsLoaded) {
+      fetchComments()
+    }
+  }, [showComments])
+
+  const fetchComments = async () => {
+    try {
+      const response = await fetch(`/api/posts/${post.id}/comments`)
+      const data = await response.json()
+      if (data.comments) {
+        const formattedComments = data.comments.map((c: any) => ({
+          id: c.id,
+          content: c.content,
+          authorId: c.user_id,
+          authorName: c.users?.username || 'Unknown',
+          createdAt: new Date(c.created_at).getTime()
+        }))
+        setLocalComments(formattedComments)
+        setCommentsLoaded(true)
+      }
+    } catch (error) {
+      console.error('Failed to fetch comments:', error)
+    }
+  }
 
   const handleLike = async () => {
     if (!user || isLiking) return

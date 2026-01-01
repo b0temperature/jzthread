@@ -20,6 +20,7 @@ interface DbPost {
   likes: number
   comments_count: number
   created_at: string
+  likedBy?: string[]
   users?: {
     id: string
     username: string
@@ -74,7 +75,7 @@ export default function ThreadView({ authUser }: ThreadViewProps) {
       authorRole: 'student' as const,
       tags: post.tag ? [post.tag] : [],
       likes: post.likes,
-      likedBy: [],
+      likedBy: post.likedBy || [],
       comments: [],
       createdAt: new Date(post.created_at).getTime(),
       imageUrl: undefined

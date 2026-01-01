@@ -17,8 +17,12 @@ export async function GET(request: NextRequest) {
           id,
           username,
           avatar
+        ),
+        likes (
+          user_id
         )
       `)
+      .eq('is_deleted', false)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
@@ -30,7 +34,13 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error
 
-    return NextResponse.json({ posts: data || [] })
+    // 处理返回数据，添加 likedBy 数组
+    const postsWithLikes = data?.map(post => ({
+      ...post,
+      likedBy: post.likes?.map((like: any) => like.user_id) || []
+    })) || []
+
+    return NextResponse.json({ posts: postsWithLikes })
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'Failed to fetch posts' },
